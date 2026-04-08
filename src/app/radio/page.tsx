@@ -1,23 +1,33 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Radio, LayoutGrid, List, Wifi } from "lucide-react";
 import RadioCard from "@/components/RadioCard";
 import RadioGridCard from "@/components/RadioGridCard";
 import SearchBar from "@/components/SearchBar";
-import { radioStations } from "@/data/mock";
+import { createClient } from "@/lib/supabase/client";
+import type { RadioStation } from "@/types";
 
 const radioTypes = ["Toutes", "FM", "Web"] as const;
 
 export default function RadioPage() {
+  const [stations, setStations] = useState<RadioStation[]>([]);
   const [search, setSearch] = useState("");
   const [type, setType] = useState<string>("Toutes");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const totalListeners = radioStations.reduce((sum, s) => sum + s.listeners, 0);
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("radio_stations")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order")
+      .then(({ data }) => setStations(data ?? []));
+  }, []);
 
   const filtered = useMemo(() => {
-    return radioStations.filter((s) => {
+    return stations.filter((s) => {
       const matchesType =
         type === "Toutes" ||
         (type === "FM" && s.type === "fm") ||
@@ -28,11 +38,10 @@ export default function RadioPage() {
         s.genre.toLowerCase().includes(search.toLowerCase());
       return matchesType && matchesSearch;
     });
-  }, [search, type]);
+  }, [stations, search, type]);
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6 animate-fade-in">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber/15 flex items-center justify-center">
@@ -40,9 +49,7 @@ export default function RadioPage() {
           </div>
           <div>
             <h1 className="font-display text-2xl font-bold">Radios Live</h1>
-            <p className="text-sm text-muted">
-              {radioStations.length} stations — {totalListeners.toLocaleString("fr-FR")} auditeurs
-            </p>
+            <p className="text-sm text-muted">{stations.length} stations</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -53,21 +60,13 @@ export default function RadioPage() {
           <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === "grid"
-                  ? "bg-amber/15 text-amber"
-                  : "text-muted hover:text-text"
-              }`}
+              className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === "list"
-                  ? "bg-amber/15 text-amber"
-                  : "text-muted hover:text-text"
-              }`}
+              className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
             >
               <List className="w-4 h-4" />
             </button>
@@ -75,27 +74,16 @@ export default function RadioPage() {
         </div>
       </div>
 
-      {/* Search */}
       <div className="mb-5 max-w-md animate-slide-up opacity-0 stagger-1">
-        <SearchBar
-          placeholder="Rechercher une radio..."
-          value={search}
-          onChange={setSearch}
-        />
+        <SearchBar placeholder="Rechercher une radio..." value={search} onChange={setSearch} />
       </div>
 
-      {/* Type pills */}
       <div className="flex gap-2 mb-6 animate-slide-up opacity-0 stagger-2">
         {radioTypes.map((t) => (
           <button
             key={t}
             onClick={() => setType(t)}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200
-              ${
-                type === t
-                  ? "bg-amber text-white"
-                  : "bg-elevated text-text-secondary hover:text-text hover:bg-border"
-              }`}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${type === t ? "bg-amber text-white" : "bg-elevated text-text-secondary hover:text-text hover:bg-border"}`}
           >
             {t === "FM" && <Radio className="w-3 h-3" />}
             {t === "Web" && <Wifi className="w-3 h-3" />}
@@ -104,21 +92,16 @@ export default function RadioPage() {
         ))}
       </div>
 
-      {/* Results count */}
       <p className="text-xs text-muted mb-4">
         {filtered.length} station{filtered.length !== 1 ? "s" : ""}
         {type !== "Toutes" && ` ${type}`}
         {search && ` pour "${search}"`}
       </p>
 
-      {/* Grid / List */}
       {viewMode === "grid" ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filtered.map((s, i) => (
-            <div
-              key={s.id}
-              className={`animate-slide-up opacity-0 stagger-${Math.min(i + 1, 8)}`}
-            >
+            <div key={s.id} className={`animate-slide-up opacity-0 stagger-${Math.min(i + 1, 8)}`}>
               <RadioGridCard station={s} />
             </div>
           ))}
@@ -135,9 +118,7 @@ export default function RadioPage() {
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Radio className="w-12 h-12 text-muted mb-4" />
           <p className="text-lg font-semibold mb-1">Aucune radio trouvée</p>
-          <p className="text-sm text-muted">
-            Essayez d&apos;ajuster votre recherche ou vos filtres
-          </p>
+          <p className="text-sm text-muted">Essayez d&apos;ajuster votre recherche ou vos filtres</p>
         </div>
       )}
     </div>

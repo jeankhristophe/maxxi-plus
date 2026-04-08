@@ -1,15 +1,14 @@
 "use client";
 
 import { Play, Radio, Wifi } from "lucide-react";
-import type { RadioStation } from "@/data/mock";
+import type { RadioStation } from "@/types";
 
 export default function RadioCard({ station }: { station: RadioStation }) {
   return (
     <button className="group flex items-center gap-3 w-full p-3 rounded-xl hover:bg-elevated transition-colors text-left">
-      {/* Cover */}
       <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
         <img
-          src={station.cover}
+          src={station.cover_url || "/placeholder.png"}
           alt={station.name}
           className="w-full h-full object-cover"
         />
@@ -18,7 +17,6 @@ export default function RadioCard({ station }: { station: RadioStation }) {
         </div>
       </div>
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold truncate group-hover:text-amber transition-colors">
           {station.name}
@@ -26,7 +24,6 @@ export default function RadioCard({ station }: { station: RadioStation }) {
         <p className="text-xs text-muted truncate">{station.genre}</p>
       </div>
 
-      {/* Badge type */}
       <span className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-elevated text-muted">
         {station.type === "fm" ? (
           <>
@@ -41,7 +38,6 @@ export default function RadioCard({ station }: { station: RadioStation }) {
         )}
       </span>
 
-      {/* Live dot */}
       <span className="w-2 h-2 rounded-full bg-live animate-pulse-live shrink-0" />
     </button>
   );
