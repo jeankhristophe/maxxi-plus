@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
 import Player from "@/components/Player";
+import { PlayerProvider } from "@/contexts/PlayerContext";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -34,11 +35,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full noise-overlay">
-        <Sidebar />
-        <main className="ml-[var(--sidebar-width)] pb-[var(--player-height)] min-h-screen">
-          {children}
-        </main>
-        <Player />
+        <PlayerProvider>
+          <Sidebar />
+          <main className="ml-[var(--sidebar-width)] pb-[var(--player-height)] min-h-screen">
+            {children}
+          </main>
+          <Player />
+        </PlayerProvider>
       </body>
     </html>
   );
