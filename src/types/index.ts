@@ -24,6 +24,7 @@ export interface Podcast {
   category: string;
   description: string | null;
   is_featured: boolean;
+  rss_url: string | null;
   created_at: string;
   updated_at: string;
   // Champs calculés (via view ou count)
