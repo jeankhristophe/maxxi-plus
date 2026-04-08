@@ -31,6 +31,9 @@ export default function PodcastCard({ podcast }: { podcast: Podcast }) {
         {podcast.title}
       </h3>
       <p className="text-xs text-muted truncate mt-0.5">{podcast.author}</p>
+      {podcast.episode_count != null && podcast.episode_count > 0 && (
+        <p className="text-[10px] text-subtle mt-1">{podcast.episode_count} épisodes</p>
+      )}
     </Link>
   );
 }

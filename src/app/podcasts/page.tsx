@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Headphones, LayoutGrid, List } from "lucide-react";
+import { Headphones, LayoutGrid, List, ArrowDownUp } from "lucide-react";
 import PodcastCard from "@/components/PodcastCard";
 import CategoryPills from "@/components/CategoryPills";
 import SearchBar from "@/components/SearchBar";
@@ -9,22 +9,23 @@ import { createClient } from "@/lib/supabase/client";
 import type { Podcast } from "@/types";
 
 export default function PodcastsPage() {
-  const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [podcasts, setPodcasts] = useState<(Podcast & { latest_published_at: string | null; episode_count: number })[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Tous");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState<"recent" | "name" | "episodes">("recent");
 
   useEffect(() => {
     const supabase = createClient();
     supabase
-      .from("podcasts")
+      .from("podcasts_with_latest")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("latest_published_at", { ascending: false, nullsFirst: false })
       .then(({ data }) => setPodcasts(data ?? []));
   }, []);
 
   const filtered = useMemo(() => {
-    return podcasts.filter((p) => {
+    const list = podcasts.filter((p) => {
       const matchesCategory = category === "Tous" || p.category === category;
       const matchesSearch =
         !search ||
@@ -32,7 +33,21 @@ export default function PodcastsPage() {
         p.author.toLowerCase().includes(search.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [podcasts, search, category]);
+
+    if (sortBy === "name") {
+      list.sort((a, b) => a.title.localeCompare(b.title, "fr"));
+    } else if (sortBy === "episodes") {
+      list.sort((a, b) => (b.episode_count ?? 0) - (a.episode_count ?? 0));
+    } else {
+      list.sort((a, b) => {
+        const da = a.latest_published_at ?? "";
+        const db = b.latest_published_at ?? "";
+        return db.localeCompare(da);
+      });
+    }
+
+    return list;
+  }, [podcasts, search, category, sortBy]);
 
   return (
     <div className="p-4 md:p-8">
@@ -46,19 +61,39 @@ export default function PodcastsPage() {
             <p className="text-sm text-muted">Annuaire francophone — {podcasts.length} podcasts</p>
           </div>
         </div>
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-          >
-            <List className="w-4 h-4" />
-          </button>
+        <div className="flex items-center gap-2">
+          {/* Sort */}
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
+            <ArrowDownUp className="w-3.5 h-3.5 text-muted ml-1.5" />
+            {([
+              ["recent", "Récents"],
+              ["name", "A-Z"],
+              ["episodes", "Épisodes"],
+            ] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setSortBy(key)}
+                className={`px-2 py-1.5 rounded-md text-[11px] font-medium transition-colors ${sortBy === key ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {/* View mode */}
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
