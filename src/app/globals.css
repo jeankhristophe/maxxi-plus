@@ -1,26 +1,171 @@
 @import "tailwindcss";
 
+/* ─── Variables de thème (dynamiques) ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --t-noir: #0A0A0B;
+  --t-surface: #141416;
+  --t-elevated: #1C1C1F;
+  --t-border: #2A2A2E;
+  --t-muted: #7A7A82;
+  --t-subtle: #52525A;
+  --t-text: #FAFAFA;
+  --t-text-secondary: #B4B4BB;
 }
 
+html:not(.dark) {
+  --t-noir: #F5F5F7;
+  --t-surface: #FFFFFF;
+  --t-elevated: #EBEBEF;
+  --t-border: #D4D4D8;
+  --t-muted: #71717A;
+  --t-subtle: #A1A1AA;
+  --t-text: #18181B;
+  --t-text-secondary: #3F3F46;
+}
+
+/* ─── Tailwind theme → pointe sur les variables dynamiques ─── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-noir: var(--t-noir);
+  --color-surface: var(--t-surface);
+  --color-elevated: var(--t-elevated);
+  --color-border: var(--t-border);
+  --color-muted: var(--t-muted);
+  --color-subtle: var(--t-subtle);
+  --color-text: var(--t-text);
+  --color-text-secondary: var(--t-text-secondary);
+
+  /* Accent violet (fixe, pas de changement light/dark) */
+  --color-amber: #8B5CF6;
+  --color-amber-hover: #A78BFA;
+  --color-amber-glow: #8B5CF633;
+  --color-amber-deep: #7C3AED;
+
+  /* Semantic */
+  --color-live: #EF4444;
+  --color-live-glow: #EF444433;
+  --color-success: #22C55E;
+
+  /* Spacing */
+  --sidebar-width: 260px;
+  --player-height: 90px;
+
+  /* Fonts */
+  --font-display: var(--font-bricolage);
+  --font-body: var(--font-figtree);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base ─── */
+html {
+  background: var(--t-noir);
+  color: var(--t-text);
+  scrollbar-width: thin;
+  scrollbar-color: var(--t-border) transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+/* ─── Scrollbar Custom ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--t-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--t-muted);
+}
+
+/* ─── Animations ─── */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes eq-bar {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+@keyframes waveform {
+  0% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+  100% { transform: scaleY(0.3); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--color-amber-glow); }
+  50% { box-shadow: 0 0 40px var(--color-amber-glow), 0 0 60px var(--color-amber-glow); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-pulse-live {
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* ─── Stagger delays ─── */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* ─── Noise texture overlay ─── */
+.noise-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ─── Glass effect ─── */
+.glass {
+  background: rgba(20, 20, 22, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+html:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* ─── Gradient text ─── */
+.text-gradient-amber {
+  background: linear-gradient(135deg, var(--color-amber), var(--color-amber-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
