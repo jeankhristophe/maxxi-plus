@@ -4,12 +4,10 @@ import {
   Play,
   Heart,
   Share2,
-  Clock,
-  Headphones,
-  CheckCircle2,
   Calendar,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import EpisodeRow from "@/components/EpisodeRow";
 import { formatDuration } from "@/types";
 import { notFound } from "next/navigation";
 
@@ -109,37 +107,8 @@ export default async function PodcastDetailPage({
         {podcastEpisodes.length > 0 ? (
           <div className="space-y-2">
             {podcastEpisodes.map((ep, i) => (
-              <div
-                key={ep.id}
-                className={`group flex items-start gap-4 p-4 rounded-xl border border-transparent hover:border-border hover:bg-elevated transition-all animate-slide-up opacity-0 stagger-${Math.min(i + 1, 8)}`}
-              >
-                <button className="mt-1 w-10 h-10 shrink-0 rounded-full bg-elevated border border-border flex items-center justify-center text-muted group-hover:bg-amber group-hover:text-white group-hover:border-amber transition-all">
-                  <Play className="w-4 h-4 ml-0.5" />
-                </button>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold truncate group-hover:text-amber transition-colors">
-                    {ep.title}
-                  </h3>
-                  {ep.description && (
-                    <p className="text-xs text-muted mt-1 line-clamp-2">{ep.description}</p>
-                  )}
-                  <div className="flex items-center gap-3 mt-2 text-[11px] text-subtle">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {formatDuration(ep.duration_seconds)}
-                    </span>
-                    {ep.published_at && (
-                      <span>
-                        {new Date(ep.published_at).toLocaleDateString("fr-FR", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                    )}
-                  </div>
-                </div>
+              <div key={ep.id} className={`animate-slide-up opacity-0 stagger-${Math.min(i + 1, 8)}`}>
+                <EpisodeRow episode={ep} podcast={podcast} />
               </div>
             ))}
           </div>
