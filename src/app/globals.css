@@ -48,6 +48,9 @@ html:not(.dark) {
   /* Spacing */
   --sidebar-width: 260px;
   --player-height: 90px;
+  --nav-height: 60px;
+
+  /* Mobile overrides via media query in base styles below */
 
   /* Fonts */
   --font-display: var(--font-bricolage);

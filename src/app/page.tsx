@@ -26,16 +26,16 @@ export default async function HomePage() {
   const rest = allPodcasts.slice(4, 8);
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* ─── Hero Branding ─── */}
       <section className="relative rounded-2xl overflow-hidden mb-10 animate-fade-in bg-surface border border-border">
         <div className="absolute inset-0 bg-gradient-to-br from-amber/10 via-transparent to-transparent" />
 
         <div className="relative px-8 py-10 md:px-10 md:py-12">
-          <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-3">
+          <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight mb-2 md:mb-3">
             MAXXI<span className="text-gradient-amber">+</span>
           </h2>
-          <p className="text-lg text-text-secondary max-w-lg mb-6">
+          <p className="text-sm md:text-lg text-text-secondary max-w-lg mb-4 md:mb-6">
             Vos radios en direct et les meilleurs podcasts francophones, réunis en un seul endroit.
           </p>
 
@@ -61,7 +61,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/radio"
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber text-white font-semibold text-sm hover:bg-amber-hover transition-colors"

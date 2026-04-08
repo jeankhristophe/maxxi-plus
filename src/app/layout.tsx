@@ -20,7 +20,20 @@ const figtree = Figtree({
 export const metadata: Metadata = {
   title: "MAXXI+ — Radio & Podcasts",
   description:
-    "Votre radio privée et annuaire de podcasts francophones. Écoutez en direct, découvrez de nouveaux podcasts.",
+    "Vos radios en direct et les meilleurs podcasts francophones, réunis en un seul endroit.",
+  manifest: "/manifest.json",
+  themeColor: "#8B5CF6",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "MAXXI+",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({
@@ -37,7 +50,7 @@ export default function RootLayout({
       <body className="min-h-full noise-overlay">
         <PlayerProvider>
           <Sidebar />
-          <main className="ml-[var(--sidebar-width)] pb-[var(--player-height)] min-h-screen">
+          <main className="md:ml-[var(--sidebar-width)] pb-[calc(var(--player-height)+var(--nav-height))] md:pb-[var(--player-height)] min-h-screen">
             {children}
           </main>
           <Player />
