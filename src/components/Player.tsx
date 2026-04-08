@@ -35,10 +35,8 @@ export default function Player() {
   const isRadio = mode === "radio";
   const isPodcast = mode === "podcast";
 
-  // Progress percentage
   const progress = isPodcast && duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Track info
   const title = isRadio
     ? currentStation?.name ?? ""
     : currentEpisode?.title ?? "";
@@ -50,9 +48,79 @@ export default function Player() {
     : currentPodcast?.cover_url;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 h-[var(--player-height)] glass border-t border-border z-40">
-      <div className="h-full flex items-center px-4 gap-4">
-        {/* ─── Track Info (left) ─── */}
+    <footer className={`fixed left-0 right-0 glass border-t border-border z-40 ${
+      /* Mobile: above bottom nav. Desktop: at bottom */
+      "bottom-[var(--nav-height)] md:bottom-0"
+    }`}>
+      {/* ─── Mobile Player (compact) ─── */}
+      <div className="md:hidden">
+        {/* Progress bar on top for podcast */}
+        {isPodcast && (
+          <div
+            className="h-0.5 bg-elevated cursor-pointer"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const pct = (e.clientX - rect.left) / rect.width;
+              seek(pct * duration);
+            }}
+          >
+            <div className="h-full bg-amber transition-all" style={{ width: `${progress}%` }} />
+          </div>
+        )}
+        <div className="flex items-center gap-3 px-4 py-2.5">
+          {!isIdle ? (
+            <>
+              <div className="relative shrink-0">
+                <img
+                  src={artwork || "/placeholder.png"}
+                  alt={title}
+                  className="w-10 h-10 rounded-lg object-cover"
+                />
+                {isRadio && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-live animate-pulse-live" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{title}</p>
+                <p className="text-[11px] text-muted truncate">{subtitle}</p>
+              </div>
+              {isRadio && isPlaying && (
+                <div className="flex items-end gap-[2px] h-3 shrink-0">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="w-[2px] rounded-full bg-amber"
+                      style={{ animation: `eq-bar ${0.5 + Math.random() * 0.4}s ease-in-out ${i * 0.08}s infinite`, height: "3px" }}
+                    />
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={togglePlay}
+                className="w-9 h-9 rounded-full bg-text flex items-center justify-center shrink-0"
+              >
+                {isPlaying ? (
+                  <Pause className="w-4 h-4 text-noir" />
+                ) : (
+                  <Play className="w-4 h-4 text-noir ml-0.5" />
+                )}
+              </button>
+              <button onClick={stop} className="text-muted p-1">
+                <Square className="w-3.5 h-3.5" />
+              </button>
+            </>
+          ) : (
+            <div className="flex items-center gap-3 py-1 text-muted">
+              <Radio className="w-5 h-5" />
+              <p className="text-sm">Sélectionnez un contenu</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ─── Desktop Player (full) ─── */}
+      <div className="hidden md:flex items-center h-[var(--player-height)] px-4 gap-4">
+        {/* Track Info (left) */}
         <div className="flex items-center gap-3 w-[280px] min-w-[200px]">
           {!isIdle ? (
             <>
@@ -92,14 +160,11 @@ export default function Player() {
           )}
         </div>
 
-        {/* ─── Controls (center) ─── */}
+        {/* Controls (center) */}
         <div className="flex-1 flex flex-col items-center max-w-[600px] mx-auto">
           <div className="flex items-center gap-4 mb-1">
             {isPodcast && (
-              <button
-                onClick={() => seek(Math.max(0, currentTime - 15))}
-                className="text-muted hover:text-text transition-colors"
-              >
+              <button onClick={() => seek(Math.max(0, currentTime - 15))} className="text-muted hover:text-text transition-colors">
                 <SkipBack className="w-4 h-4" />
               </button>
             )}
@@ -107,28 +172,18 @@ export default function Player() {
               onClick={togglePlay}
               disabled={isIdle}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform ${
-                isIdle
-                  ? "bg-elevated text-muted cursor-not-allowed"
-                  : "bg-text text-noir hover:scale-105 active:scale-95"
+                isIdle ? "bg-elevated text-muted cursor-not-allowed" : "bg-text text-noir hover:scale-105 active:scale-95"
               }`}
             >
-              {isPlaying ? (
-                <Pause className="w-5 h-5" />
-              ) : (
-                <Play className="w-5 h-5 ml-0.5" />
-              )}
+              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
             </button>
             {isPodcast && (
-              <button
-                onClick={() => seek(Math.min(duration, currentTime + 30))}
-                className="text-muted hover:text-text transition-colors"
-              >
+              <button onClick={() => seek(Math.min(duration, currentTime + 30))} className="text-muted hover:text-text transition-colors">
                 <SkipForward className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Progress bar */}
           {isPodcast ? (
             <div className="w-full flex items-center gap-2">
               <span className="text-[10px] text-muted tabular-nums w-10 text-right">
@@ -142,10 +197,7 @@ export default function Player() {
                   seek(pct * duration);
                 }}
               >
-                <div
-                  className="h-full bg-amber rounded-full relative transition-all"
-                  style={{ width: `${progress}%` }}
-                >
+                <div className="h-full bg-amber rounded-full relative transition-all" style={{ width: `${progress}%` }}>
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-amber opacity-0 group-hover:opacity-100 transition-opacity shadow-lg" />
                 </div>
               </div>
@@ -155,22 +207,15 @@ export default function Player() {
             </div>
           ) : isRadio ? (
             <div className="w-full flex items-center justify-center gap-2">
-              {/* Animated equalizer bars for radio */}
-              <div className="flex items-end gap-[2px] h-3">
-                {isPlaying &&
-                  [0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-                    <div
-                      key={i}
-                      className="w-[2px] rounded-full bg-amber"
-                      style={{
-                        animation: `eq-bar ${0.5 + Math.random() * 0.4}s ease-in-out ${i * 0.08}s infinite`,
-                        height: "3px",
-                      }}
-                    />
-                  ))}
-              </div>
               {isPlaying && (
-                <span className="text-[10px] text-amber font-medium ml-2">En direct</span>
+                <>
+                  <div className="flex items-end gap-[2px] h-3">
+                    {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                      <div key={i} className="w-[2px] rounded-full bg-amber" style={{ animation: `eq-bar ${0.5 + Math.random() * 0.4}s ease-in-out ${i * 0.08}s infinite`, height: "3px" }} />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-amber font-medium ml-2">En direct</span>
+                </>
               )}
             </div>
           ) : (
@@ -178,22 +223,15 @@ export default function Player() {
           )}
         </div>
 
-        {/* ─── Volume & extras (right) ─── */}
+        {/* Volume & extras (right) */}
         <div className="flex items-center gap-3 w-[200px] justify-end">
           {!isIdle && (
-            <button
-              onClick={stop}
-              className="text-muted hover:text-text transition-colors"
-              title="Arrêter"
-            >
+            <button onClick={stop} className="text-muted hover:text-text transition-colors" title="Arrêter">
               <Square className="w-3.5 h-3.5" />
             </button>
           )}
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleMute}
-              className="text-muted hover:text-text transition-colors"
-            >
+            <button onClick={toggleMute} className="text-muted hover:text-text transition-colors">
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
             <input

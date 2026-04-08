@@ -35,7 +35,7 @@ export default function PodcastsPage() {
   }, [podcasts, search, category]);
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-6 animate-fade-in">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber/15 flex items-center justify-center">

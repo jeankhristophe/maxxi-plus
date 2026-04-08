@@ -34,7 +34,7 @@ export default async function PodcastDetailPage({
   const podcastEpisodes = episodes ?? [];
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <Link
         href="/podcasts"
         className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-text transition-colors mb-6"
@@ -46,13 +46,13 @@ export default async function PodcastDetailPage({
       {/* ─── Hero ─── */}
       <div className="relative rounded-2xl overflow-hidden mb-8 animate-fade-in bg-surface border border-border">
         <div className="absolute inset-0 bg-gradient-to-br from-amber/10 via-transparent to-transparent" />
-        <div className="relative p-8 flex flex-col md:flex-row gap-8">
-          <div className="relative shrink-0">
+        <div className="relative p-5 md:p-8 flex flex-col md:flex-row gap-5 md:gap-8">
+          <div className="relative shrink-0 flex justify-center md:block">
             <div className="absolute inset-0 bg-amber/20 blur-3xl rounded-2xl" />
             <img
               src={podcast.cover_url || "/placeholder.png"}
               alt={podcast.title}
-              className="relative w-56 h-56 rounded-2xl object-cover shadow-2xl"
+              className="relative w-40 h-40 md:w-56 md:h-56 rounded-2xl object-cover shadow-2xl"
             />
           </div>
 
@@ -60,10 +60,10 @@ export default async function PodcastDetailPage({
             <span className="px-3 py-1 rounded-full bg-amber/15 text-amber text-xs font-semibold w-fit mb-3">
               {podcast.category}
             </span>
-            <h1 className="font-display text-4xl font-bold tracking-tight mb-2">
+            <h1 className="font-display text-2xl md:text-4xl font-bold tracking-tight mb-2">
               {podcast.title}
             </h1>
-            <p className="text-lg text-text-secondary mb-1">{podcast.author}</p>
+            <p className="text-base md:text-lg text-text-secondary mb-1">{podcast.author}</p>
             {podcast.description && (
               <p className="text-sm text-muted leading-relaxed max-w-lg mb-4">
                 {podcast.description}
