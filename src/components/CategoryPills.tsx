@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { categories } from "@/data/mock";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function CategoryPills({
   onSelect,
 }: {
   onSelect?: (category: string) => void;
 }) {
+  const [categories, setCategories] = useState<string[]>(["Tous"]);
   const [active, setActive] = useState("Tous");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("categories")
+      .select("name")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (data) {
+          setCategories(["Tous", ...data.map((c) => c.name)]);
+        }
+      });
+  }, []);
 
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">

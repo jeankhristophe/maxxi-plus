@@ -1,8 +1,6 @@
 import Link from "next/link";
 import {
   Radio,
-  Wifi,
-  Play,
   TrendingUp,
   Sparkles,
   ArrowRight,
@@ -11,13 +9,22 @@ import {
 } from "lucide-react";
 import PodcastCard from "@/components/PodcastCard";
 import RadioCard from "@/components/RadioCard";
-import { radioStations, podcasts } from "@/data/mock";
+import { createClient } from "@/lib/supabase/server";
 
-const trendingPodcasts = podcasts.slice(0, 4);
-const newPodcasts = podcasts.slice(4, 8);
-const editorPicks = podcasts.slice(8, 12);
+export default async function HomePage() {
+  const supabase = await createClient();
 
-export default function HomePage() {
+  const [{ data: stations }, { data: podcasts }] = await Promise.all([
+    supabase.from("radio_stations").select("*").eq("is_active", true).order("sort_order"),
+    supabase.from("podcasts").select("*").order("created_at", { ascending: false }),
+  ]);
+
+  const allStations = stations ?? [];
+  const allPodcasts = podcasts ?? [];
+  const featured = allPodcasts.filter((p) => p.is_featured);
+  const recent = allPodcasts.slice(0, 4);
+  const rest = allPodcasts.slice(4, 8);
+
   return (
     <div className="p-8">
       {/* ─── Hero Branding ─── */}
@@ -32,14 +39,13 @@ export default function HomePage() {
             Vos radios en direct et les meilleurs podcasts francophones, réunis en un seul endroit.
           </p>
 
-          {/* Stats */}
           <div className="flex items-center gap-6 mb-8">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-live/15 flex items-center justify-center">
                 <Radio className="w-4 h-4 text-live" />
               </div>
               <div>
-                <p className="text-xl font-bold leading-none">10</p>
+                <p className="text-xl font-bold leading-none">{allStations.length}</p>
                 <p className="text-[11px] text-muted">radios live</p>
               </div>
             </div>
@@ -49,13 +55,12 @@ export default function HomePage() {
                 <Mic2 className="w-4 h-4 text-amber" />
               </div>
               <div>
-                <p className="text-xl font-bold leading-none">{podcasts.length}</p>
+                <p className="text-xl font-bold leading-none">{allPodcasts.length}</p>
                 <p className="text-[11px] text-muted">podcasts</p>
               </div>
             </div>
           </div>
 
-          {/* CTAs */}
           <div className="flex gap-3">
             <Link
               href="/radio"
@@ -82,86 +87,80 @@ export default function HomePage() {
             <Radio className="w-5 h-5 text-amber" />
             <h3 className="font-display text-xl font-bold">Nos Radios</h3>
           </div>
-          <Link
-            href="/radio"
-            className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors"
-          >
+          <Link href="/radio" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-1 rounded-xl bg-surface border border-border p-2">
-          {radioStations.map((station) => (
+          {allStations.map((station) => (
             <RadioCard key={station.id} station={station} />
           ))}
         </div>
       </section>
 
-      {/* ─── Tendances ─── */}
-      <section className="mb-10">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-amber" />
-            <h3 className="font-display text-xl font-bold">Tendances</h3>
-          </div>
-          <Link
-            href="/podcasts"
-            className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors"
-          >
-            Voir tout <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {trendingPodcasts.map((p, i) => (
-            <div key={p.id} className={`animate-slide-up opacity-0 stagger-${i + 1}`}>
-              <PodcastCard podcast={p} />
+      {/* ─── Tendances (featured) ─── */}
+      {featured.length > 0 && (
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-amber" />
+              <h3 className="font-display text-xl font-bold">Tendances</h3>
             </div>
-          ))}
-        </div>
-      </section>
+            <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
+              Voir tout <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {featured.map((p, i) => (
+              <div key={p.id} className={`animate-slide-up opacity-0 stagger-${i + 1}`}>
+                <PodcastCard podcast={p} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ─── Nouveautés ─── */}
-      <section className="mb-10">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber" />
-            <h3 className="font-display text-xl font-bold">Nouveautés</h3>
-          </div>
-          <Link
-            href="/podcasts"
-            className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors"
-          >
-            Voir tout <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {newPodcasts.map((p, i) => (
-            <div key={p.id} className={`animate-slide-up opacity-0 stagger-${i + 5}`}>
-              <PodcastCard podcast={p} />
+      {recent.length > 0 && (
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber" />
+              <h3 className="font-display text-xl font-bold">Nouveautés</h3>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Sélection de la rédaction ─── */}
-      <section className="mb-10">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <Headphones className="w-5 h-5 text-amber" />
-            <h3 className="font-display text-xl font-bold">Sélection de la rédaction</h3>
+            <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
+              Voir tout <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
-          <Link
-            href="/podcasts"
-            className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors"
-          >
-            Voir tout <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {editorPicks.map((p) => (
-            <PodcastCard key={p.id} podcast={p} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {recent.map((p, i) => (
+              <div key={p.id} className={`animate-slide-up opacity-0 stagger-${i + 1}`}>
+                <PodcastCard podcast={p} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ─── Tous les podcasts ─── */}
+      {rest.length > 0 && (
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <Headphones className="w-5 h-5 text-amber" />
+              <h3 className="font-display text-xl font-bold">À découvrir</h3>
+            </div>
+            <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
+              Voir tout <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {rest.map((p) => (
+              <PodcastCard key={p.id} podcast={p} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
