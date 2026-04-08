@@ -97,6 +97,7 @@ export default function Player() {
               )}
               <button
                 onClick={togglePlay}
+                aria-label={isPlaying ? "Pause" : "Lecture"}
                 className="w-9 h-9 rounded-full bg-text flex items-center justify-center shrink-0"
               >
                 {isPlaying ? (
@@ -105,7 +106,7 @@ export default function Player() {
                   <Play className="w-4 h-4 text-noir ml-0.5" />
                 )}
               </button>
-              <button onClick={stop} className="text-muted p-1">
+              <button onClick={stop} aria-label="Arrêter" className="text-muted p-1">
                 <Square className="w-3.5 h-3.5" />
               </button>
             </>
@@ -164,21 +165,22 @@ export default function Player() {
         <div className="flex-1 flex flex-col items-center max-w-[600px] mx-auto">
           <div className="flex items-center gap-4 mb-1">
             {isPodcast && (
-              <button onClick={() => seek(Math.max(0, currentTime - 15))} className="text-muted hover:text-text transition-colors">
+              <button onClick={() => seek(Math.max(0, currentTime - 15))} aria-label="Reculer 15 secondes" className="text-muted hover:text-text transition-colors">
                 <SkipBack className="w-4 h-4" />
               </button>
             )}
             <button
               onClick={togglePlay}
               disabled={isIdle}
+              aria-label={isPlaying ? "Pause" : "Lecture"}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform ${
-                isIdle ? "bg-elevated text-muted cursor-not-allowed" : "bg-text text-noir hover:scale-105 active:scale-95"
+                isIdle ? "bg-elevated text-muted cursor-not-allowed" : "bg-amber text-white hover:scale-105 active:scale-95"
               }`}
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
             </button>
             {isPodcast && (
-              <button onClick={() => seek(Math.min(duration, currentTime + 30))} className="text-muted hover:text-text transition-colors">
+              <button onClick={() => seek(Math.min(duration, currentTime + 30))} aria-label="Avancer 30 secondes" className="text-muted hover:text-text transition-colors">
                 <SkipForward className="w-4 h-4" />
               </button>
             )}
@@ -231,15 +233,18 @@ export default function Player() {
             </button>
           )}
           <div className="flex items-center gap-2">
-            <button onClick={toggleMute} className="text-muted hover:text-text transition-colors">
+            <button onClick={toggleMute} aria-label={isMuted ? "Activer le son" : "Couper le son"} className="text-muted hover:text-text transition-colors">
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
+            <label className="sr-only" htmlFor="volume-slider">Volume</label>
             <input
+              id="volume-slider"
               type="range"
               min="0"
               max="100"
               value={isMuted ? 0 : volume}
               onChange={(e) => setVolume(Number(e.target.value))}
+              aria-label="Volume"
               className="w-20 h-1 bg-elevated rounded-full appearance-none cursor-pointer accent-amber [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber"
             />
           </div>
