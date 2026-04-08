@@ -94,7 +94,7 @@ export default async function HomePage() {
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
           {allStations.map((station) => (
-            <div key={station.id} className="shrink-0 w-[140px] md:w-[170px]">
+            <div key={station.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
               <RadioGridCard station={station} />
             </div>
           ))}
@@ -115,7 +115,7 @@ export default async function HomePage() {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
             {featured.map((p) => (
-              <div key={p.id} className="shrink-0 w-[140px] md:w-[170px]">
+              <div key={p.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
                 <PodcastCard podcast={p} />
               </div>
             ))}
@@ -137,7 +137,7 @@ export default async function HomePage() {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
             {recent.map((p) => (
-              <div key={p.id} className="shrink-0 w-[140px] md:w-[170px]">
+              <div key={p.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
                 <PodcastCard podcast={p} />
               </div>
             ))}
@@ -159,7 +159,7 @@ export default async function HomePage() {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
             {rest.map((p) => (
-              <div key={p.id} className="shrink-0 w-[140px] md:w-[170px]">
+              <div key={p.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
                 <PodcastCard podcast={p} />
               </div>
             ))}
