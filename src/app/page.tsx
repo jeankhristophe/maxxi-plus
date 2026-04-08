@@ -8,7 +8,7 @@ import {
   Mic2,
 } from "lucide-react";
 import PodcastCard from "@/components/PodcastCard";
-import RadioCard from "@/components/RadioCard";
+import RadioGridCard from "@/components/RadioGridCard";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
@@ -81,7 +81,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Nos Radios ─── */}
+      {/* ─── Nos Radios (carrousel) ─── */}
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -92,17 +92,19 @@ export default async function HomePage() {
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 rounded-xl bg-surface border border-border p-2">
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
           {allStations.map((station) => (
-            <RadioCard key={station.id} station={station} />
+            <div key={station.id} className="shrink-0 w-[140px] md:w-[170px]">
+              <RadioGridCard station={station} />
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ─── Tendances (featured) ─── */}
+      {/* ─── Tendances (carrousel) ─── */}
       {featured.length > 0 && (
         <section className="mb-10">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-amber" />
               <h3 className="font-display text-xl font-bold">Tendances</h3>
@@ -111,9 +113,9 @@ export default async function HomePage() {
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {featured.map((p, i) => (
-              <div key={p.id} className={`animate-slide-up opacity-0 stagger-${i + 1}`}>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
+            {featured.map((p) => (
+              <div key={p.id} className="shrink-0 w-[140px] md:w-[170px]">
                 <PodcastCard podcast={p} />
               </div>
             ))}
@@ -121,10 +123,10 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ─── Nouveautés ─── */}
+      {/* ─── Nouveautés (carrousel) ─── */}
       {recent.length > 0 && (
         <section className="mb-10">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber" />
               <h3 className="font-display text-xl font-bold">Nouveautés</h3>
@@ -133,9 +135,9 @@ export default async function HomePage() {
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {recent.map((p, i) => (
-              <div key={p.id} className={`animate-slide-up opacity-0 stagger-${i + 1}`}>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
+            {recent.map((p) => (
+              <div key={p.id} className="shrink-0 w-[140px] md:w-[170px]">
                 <PodcastCard podcast={p} />
               </div>
             ))}
@@ -143,10 +145,10 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ─── Tous les podcasts ─── */}
+      {/* ─── À découvrir (carrousel) ─── */}
       {rest.length > 0 && (
         <section className="mb-10">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Headphones className="w-5 h-5 text-amber" />
               <h3 className="font-display text-xl font-bold">À découvrir</h3>
@@ -155,9 +157,11 @@ export default async function HomePage() {
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
             {rest.map((p) => (
-              <PodcastCard key={p.id} podcast={p} />
+              <div key={p.id} className="shrink-0 w-[140px] md:w-[170px]">
+                <PodcastCard podcast={p} />
+              </div>
             ))}
           </div>
         </section>
