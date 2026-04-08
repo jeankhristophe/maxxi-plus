@@ -1,13 +1,13 @@
 import Link from "next/link";
 import {
   ArrowLeft,
-  Play,
   Heart,
   Share2,
   Calendar,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import EpisodeRow from "@/components/EpisodeRow";
+import PlayLatestButton from "@/components/PlayLatestButton";
 import { formatDuration } from "@/types";
 import { notFound } from "next/navigation";
 
@@ -79,10 +79,7 @@ export default async function PodcastDetailPage({
 
             <div className="flex gap-3">
               {podcastEpisodes.length > 0 && (
-                <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber text-white font-semibold text-sm hover:bg-amber-hover transition-colors">
-                  <Play className="w-4 h-4" />
-                  Dernier épisode
-                </button>
+                <PlayLatestButton episode={podcastEpisodes[0]} podcast={podcast} />
               )}
               <button className="p-3 rounded-xl bg-elevated border border-border text-text-secondary hover:text-amber hover:border-amber/30 transition-all">
                 <Heart className="w-4 h-4" />

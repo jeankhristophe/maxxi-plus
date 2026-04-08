@@ -12,7 +12,7 @@ import {
   Settings,
   Wifi,
 } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navItems = [
   { href: "/", icon: Home, label: "Accueil" },
@@ -130,6 +130,7 @@ export default function Sidebar() {
             </Link>
           );
         })}
+        <ThemeToggle compact />
       </nav>
     </>
   );
