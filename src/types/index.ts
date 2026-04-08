@@ -8,6 +8,7 @@ export interface RadioStation {
   genre: string;
   tagline: string;
   stream_url: string;
+  hls_url: string | null;
   cover_url: string | null;
   color: string;
   sort_order: number;

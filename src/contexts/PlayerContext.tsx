@@ -9,6 +9,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+import Hls from "hls.js";
 import type { RadioStation, Episode, Podcast } from "@/types";
 
 // ─── Types ───
@@ -56,6 +57,31 @@ export function usePlayer() {
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hlsRef = useRef<Hls | null>(null);
+
+  // Load a source into the audio element, handling HLS if needed
+  function loadSource(url: string) {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // Destroy previous HLS instance
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+
+    const isHls = url.endsWith(".m3u8") || url.includes("/hls/");
+
+    if (isHls && Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(audio);
+      hlsRef.current = hls;
+    } else {
+      // Native support (Safari for HLS, or regular MP3/stream)
+      audio.src = url;
+    }
+  }
 
   const [mode, setMode] = useState<PlayerMode>("idle");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -85,7 +111,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setCurrentTime(0);
     setDuration(0);
 
-    audio.src = station.stream_url;
+    // Always use HLS when available (better CORS support)
+    loadSource(station.hls_url || station.stream_url);
     audio.play().then(() => setIsPlaying(true)).catch(() => {});
   }, []);
 
@@ -100,7 +127,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setCurrentTime(0);
     setDuration(0);
 
-    audio.src = episode.audio_url;
+    loadSource(episode.audio_url);
     audio.play().then(() => setIsPlaying(true)).catch(() => {});
   }, []);
 
@@ -135,6 +162,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const stop = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
     audio.pause();
     audio.src = "";
     setIsPlaying(false);
