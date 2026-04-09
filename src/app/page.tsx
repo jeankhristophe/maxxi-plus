@@ -6,25 +6,56 @@ import {
   ArrowRight,
   Headphones,
   Search,
+  Clock,
 } from "lucide-react";
 import PodcastCard from "@/components/PodcastCard";
 import RadioGridCard from "@/components/RadioGridCard";
 import { createClient } from "@/lib/supabase/server";
+import type { Podcast } from "@/types";
+
+// Fetch Apple Top Podcasts France
+async function getAppleTrending(): Promise<string[]> {
+  try {
+    const res = await fetch(
+      "https://rss.applemarketingtools.com/api/v2/fr/podcasts/top/50/podcasts.json",
+      { next: { revalidate: 3600 } }, // Cache 1h
+    );
+    const data = await res.json();
+    const results = data?.feed?.results ?? [];
+    return results.map((r: { name: string }) => r.name.toLowerCase());
+  } catch {
+    return [];
+  }
+}
 
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const [{ data: stations }, { data: podcasts }] = await Promise.all([
+  const [{ data: stations }, { data: podcasts }, appleTrending] = await Promise.all([
     supabase.from("radio_stations").select("*").eq("is_active", true).order("sort_order"),
-    supabase.from("podcasts").select("*").order("created_at", { ascending: false }),
+    supabase.from("podcasts_with_latest").select("*").order("latest_published_at", { ascending: false, nullsFirst: false }),
+    getAppleTrending(),
   ]);
 
   const allStations = stations ?? [];
-  const allPodcasts = podcasts ?? [];
-  const featured = allPodcasts.filter((p) => p.is_featured).slice(0, 10);
-  const nonFeatured = allPodcasts.filter((p) => !p.is_featured);
-  const recent = nonFeatured.slice(0, 10);
-  const rest = nonFeatured.slice(10, 20);
+  const allPodcasts = (podcasts ?? []) as (Podcast & { latest_published_at: string | null; episode_count: number })[];
+
+  // Tendances = podcasts qu'on a en base ET qui sont dans le top Apple France
+  const trending = allPodcasts
+    .filter((p) => appleTrending.some((t) => p.title.toLowerCase().includes(t) || t.includes(p.title.toLowerCase())))
+    .slice(0, 10);
+
+  // Nouveautés = triés par dernier épisode publié (les plus actifs)
+  const recentlyUpdated = allPodcasts
+    .filter((p) => p.latest_published_at && !trending.some((t) => t.id === p.id))
+    .slice(0, 10);
+
+  // À découvrir = le reste, mélangé aléatoirement
+  const seen = new Set([...trending.map((p) => p.id), ...recentlyUpdated.map((p) => p.id)]);
+  const discover = allPodcasts
+    .filter((p) => !seen.has(p.id))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 10);
 
   return (
     <div className="p-4 md:p-8">
@@ -57,40 +88,41 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Tendances ─── */}
-      {featured.length > 0 && (
+      {/* ─── Tendances (basé sur Apple Top France) ─── */}
+      {trending.length > 0 && (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-amber" />
               <h3 className="font-display text-xl font-bold">Tendances</h3>
+              <span className="text-[10px] text-muted bg-elevated px-2 py-0.5 rounded-full hidden sm:block">Top Apple Podcasts</span>
             </div>
             <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {featured.map((p) => (
+            {trending.map((p) => (
               <PodcastCard key={p.id} podcast={p} />
             ))}
           </div>
         </section>
       )}
 
-      {/* ─── Nouveautés ─── */}
-      {recent.length > 0 && (
+      {/* ─── Récemment mis à jour ─── */}
+      {recentlyUpdated.length > 0 && (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber" />
-              <h3 className="font-display text-xl font-bold">Nouveautés</h3>
+              <Clock className="w-5 h-5 text-amber" />
+              <h3 className="font-display text-xl font-bold">Récemment mis à jour</h3>
             </div>
             <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {recent.map((p) => (
+            {recentlyUpdated.map((p) => (
               <PodcastCard key={p.id} podcast={p} />
             ))}
           </div>
@@ -98,11 +130,11 @@ export default async function HomePage() {
       )}
 
       {/* ─── À découvrir ─── */}
-      {rest.length > 0 && (
+      {discover.length > 0 && (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Headphones className="w-5 h-5 text-amber" />
+              <Sparkles className="w-5 h-5 text-amber" />
               <h3 className="font-display text-xl font-bold">À découvrir</h3>
             </div>
             <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
@@ -110,7 +142,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {rest.map((p) => (
+            {discover.map((p) => (
               <PodcastCard key={p.id} podcast={p} />
             ))}
           </div>
