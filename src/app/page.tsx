@@ -5,7 +5,6 @@ import {
   Sparkles,
   ArrowRight,
   Headphones,
-  Search,
   Clock,
 } from "lucide-react";
 import PodcastCard from "@/components/PodcastCard";
@@ -59,17 +58,6 @@ export default async function HomePage() {
 
   return (
     <div className="p-4 md:p-8">
-      {/* ─── Search bar ─── */}
-      <section className="mb-6 animate-fade-in">
-        <Link
-          href="/search"
-          className="flex items-center gap-3 w-full max-w-md h-11 px-4 rounded-xl bg-surface border border-border text-sm text-muted hover:border-amber/30 transition-all"
-        >
-          <Search className="w-4 h-4" />
-          Rechercher radios, podcasts...
-        </Link>
-      </section>
-
       {/* ─── Nos Radios ─── */}
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">

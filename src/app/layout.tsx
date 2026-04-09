@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
 import Player from "@/components/Player";
+import GlobalSearch from "@/components/GlobalSearch";
 import { PlayerProvider } from "@/contexts/PlayerContext";
 import "./globals.css";
 
@@ -52,6 +53,7 @@ export default function RootLayout({
           <Sidebar />
           <main className="md:ml-[var(--sidebar-width)] pb-[calc(var(--player-height)+var(--nav-height))] md:pb-[var(--player-height)] min-h-screen">
             <div className="max-w-[1400px] mx-auto">
+              <GlobalSearch />
               {children}
             </div>
           </main>

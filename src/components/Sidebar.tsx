@@ -6,7 +6,6 @@ import {
   Radio,
   Headphones,
   Home,
-  Search,
   Heart,
   Clock,
   Settings,
@@ -20,7 +19,6 @@ const navItems = [
   { href: "/", icon: Home, label: "Accueil" },
   { href: "/radio", icon: Radio, label: "Radio" },
   { href: "/podcasts", icon: Headphones, label: "Podcasts" },
-  { href: "/search", icon: Search, label: "Découvrir" },
 ];
 
 const libraryItems = [
