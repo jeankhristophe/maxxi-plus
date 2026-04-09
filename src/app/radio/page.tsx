@@ -76,9 +76,6 @@ export default function RadioPage() {
         </div>
       </div>
 
-      <div className="mb-5 max-w-md animate-slide-up opacity-0 stagger-1">
-        <SearchBar placeholder="Rechercher une radio..." value={search} onChange={setSearch} />
-      </div>
 
       <div className="flex gap-2 mb-6 animate-slide-up opacity-0 stagger-2">
         {radioTypes.map((t) => (

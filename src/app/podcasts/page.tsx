@@ -108,9 +108,6 @@ export default function PodcastsPage() {
         </div>
       </div>
 
-      <div className="mb-5 max-w-md animate-slide-up opacity-0 stagger-1">
-        <SearchBar value={search} onChange={setSearch} />
-      </div>
 
       <div className="mb-6 animate-slide-up opacity-0 stagger-2">
         <CategoryPills onSelect={setCategory} />
