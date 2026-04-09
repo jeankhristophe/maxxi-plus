@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     );
     const lookupData = await lookupRes.json();
     if (lookupData.resultCount === 0) {
-      return NextResponse.json({ error: "Podcast not found on Apple" }, { status: 404 });
+      return NextResponse.json({ error: "Podcast introuvable sur Apple Podcasts" }, { status: 404 });
     }
     apple = lookupData.results[0];
   } else {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     );
     const appleData = await appleRes.json();
     if (appleData.resultCount === 0) {
-      return NextResponse.json({ error: "Podcast not found on Apple" }, { status: 404 });
+      return NextResponse.json({ error: "Podcast introuvable sur Apple Podcasts" }, { status: 404 });
     }
     apple = appleData.results[0];
   }
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   const artist = apple.artistName;
 
   if (!feedUrl) {
-    return NextResponse.json({ error: "No RSS feed found" }, { status: 404 });
+    return NextResponse.json({ error: "Aucun flux RSS trouvé pour ce podcast" }, { status: 404 });
   }
 
   // Determine category from Apple genres
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existing && existing.length > 0) {
-    return NextResponse.json({ error: `"${title}" already exists`, podcastId: existing[0].id }, { status: 409 });
+    return NextResponse.json({ error: `"${title}" existe déjà dans votre catalogue`, podcastId: existing[0].id }, { status: 409 });
   }
 
   // 3. Insert podcast
