@@ -124,9 +124,9 @@ export default function Player() {
 
         {/* Skip back */}
         {isPodcast && (
-          <button onClick={() => seek(Math.max(0, currentTime - 10))} aria-label="Reculer 10 secondes" className="relative text-muted hover:text-text transition-colors">
-            <SkipBack className="w-5 h-5" />
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold">10</span>
+          <button onClick={() => seek(Math.max(0, currentTime - 10))} aria-label="Reculer 10 secondes" className="flex items-center gap-0.5 text-muted hover:text-text transition-colors">
+            <SkipBack className="w-4 h-4" />
+            <span className="text-[10px] font-bold">10</span>
           </button>
         )}
 
@@ -144,9 +144,9 @@ export default function Player() {
 
         {/* Skip forward */}
         {isPodcast && (
-          <button onClick={() => seek(Math.min(duration, currentTime + 45))} aria-label="Avancer 45 secondes" className="relative text-muted hover:text-text transition-colors">
-            <SkipForward className="w-5 h-5" />
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold">45</span>
+          <button onClick={() => seek(Math.min(duration, currentTime + 45))} aria-label="Avancer 45 secondes" className="flex items-center gap-0.5 text-muted hover:text-text transition-colors">
+            <span className="text-[10px] font-bold">45</span>
+            <SkipForward className="w-4 h-4" />
           </button>
         )}
 
