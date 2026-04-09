@@ -63,7 +63,7 @@ export default async function HomePage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Radio className="w-5 h-5 text-amber" />
-            <h3 className="font-display text-xl font-bold">Nos Radios</h3>
+            <h2 className="font-display text-xl font-bold">Nos Radios</h2>
           </div>
           <Link href="/radio" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
@@ -82,7 +82,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-amber" />
-              <h3 className="font-display text-xl font-bold">Tendances</h3>
+              <h2 className="font-display text-xl font-bold">Tendances</h2>
               <span className="text-[10px] text-muted bg-elevated px-2 py-0.5 rounded-full hidden sm:block">Top Apple Podcasts</span>
             </div>
             <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
@@ -103,7 +103,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-amber" />
-              <h3 className="font-display text-xl font-bold">Récemment mis à jour</h3>
+              <h2 className="font-display text-xl font-bold">Récemment mis à jour</h2>
             </div>
             <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
@@ -123,7 +123,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber" />
-              <h3 className="font-display text-xl font-bold">À découvrir</h3>
+              <h2 className="font-display text-xl font-bold">À découvrir</h2>
             </div>
             <Link href="/podcasts" className="flex items-center gap-1 text-sm text-muted hover:text-amber transition-colors">
               Voir tout <ArrowRight className="w-3.5 h-3.5" />

@@ -51,6 +51,20 @@ export interface Category {
   sort_order: number;
 }
 
+// ─── Text helpers ───
+
+export function cleanHtml(text: string | null): string {
+  if (!text) return "";
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#x27;/g, "'");
+}
+
 // ─── Helpers ───
 
 export function formatDuration(seconds: number | null): string {
