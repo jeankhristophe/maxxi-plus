@@ -3,8 +3,8 @@
 import {
   Play,
   Pause,
-  SkipBack,
-  SkipForward,
+  RotateCcw,
+  RotateCw,
   Volume2,
   VolumeX,
   Radio,
@@ -124,9 +124,9 @@ export default function Player() {
 
         {/* Skip back */}
         {isPodcast && (
-          <button onClick={() => seek(Math.max(0, currentTime - 10))} aria-label="Reculer 10 secondes" className="flex items-center gap-0.5 text-muted hover:text-text transition-colors">
-            <SkipBack className="w-4 h-4" />
-            <span className="text-[10px] font-bold">10</span>
+          <button onClick={() => seek(Math.max(0, currentTime - 10))} aria-label="Reculer 10 secondes" className="relative text-muted hover:text-text transition-colors w-8 h-8 flex items-center justify-center">
+            <RotateCcw className="w-7 h-7" strokeWidth={1.5} />
+            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold mt-0.5">10</span>
           </button>
         )}
 
@@ -144,9 +144,9 @@ export default function Player() {
 
         {/* Skip forward */}
         {isPodcast && (
-          <button onClick={() => seek(Math.min(duration, currentTime + 45))} aria-label="Avancer 45 secondes" className="flex items-center gap-0.5 text-muted hover:text-text transition-colors">
-            <span className="text-[10px] font-bold">45</span>
-            <SkipForward className="w-4 h-4" />
+          <button onClick={() => seek(Math.min(duration, currentTime + 45))} aria-label="Avancer 45 secondes" className="relative text-muted hover:text-text transition-colors w-8 h-8 flex items-center justify-center">
+            <RotateCw className="w-7 h-7" strokeWidth={1.5} />
+            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold mt-0.5">45</span>
           </button>
         )}
 
