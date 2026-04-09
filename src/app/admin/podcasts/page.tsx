@@ -94,7 +94,11 @@ export default function AdminPodcastsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Supprimer ce podcast et tous ses épisodes ?")) return;
-    await supabase.from("podcasts").delete().eq("id", id);
+    await fetch("/api/admin/delete-podcast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ podcastId: id }),
+    });
     loadData();
   }
 

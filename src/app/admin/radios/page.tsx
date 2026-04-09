@@ -63,7 +63,11 @@ export default function AdminRadiosPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Supprimer cette station ?")) return;
-    await supabase.from("radio_stations").delete().eq("id", id);
+    await fetch("/api/admin/delete-station", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stationId: id }),
+    });
     loadStations();
   }
 
