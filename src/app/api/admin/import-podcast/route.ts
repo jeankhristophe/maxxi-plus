@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: podError?.message || "Insert failed" }, { status: 500 });
   }
 
-  // 4. Fetch RSS and import ALL episodes
+  // 4. Fetch RSS and import ALL episodes + podcast description
   let episodeCount = 0;
   try {
     const rssRes = await fetch(feedUrl, {
@@ -102,6 +102,16 @@ export async function POST(request: Request) {
       signal: AbortSignal.timeout(15000),
     });
     const xml = await rssRes.text();
+
+    // Extract podcast description from channel
+    const channelDescMatch = xml.match(/<itunes:summary>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/itunes:summary>/)
+      || xml.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/);
+    if (channelDescMatch) {
+      const podDesc = channelDescMatch[1].replace(/<[^>]+>/g, "").trim().slice(0, 500);
+      if (podDesc) {
+        await supabase.from("podcasts").update({ description: podDesc }).eq("id", podcast.id);
+      }
+    }
 
     const items = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
 
@@ -111,6 +121,8 @@ export async function POST(request: Request) {
       const urlMatch = item.match(/<enclosure[^>]+url="([^"]+)"/);
       const durMatch = item.match(/<itunes:duration>(\d+):?(\d*):?(\d*)<\/itunes:duration>/);
       const dateMatch = item.match(/<pubDate>([^<]+)<\/pubDate>/);
+      const descMatch = item.match(/<itunes:summary>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/itunes:summary>/)
+        || item.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/);
 
       if (!titleMatch || !urlMatch) continue;
 
@@ -127,9 +139,14 @@ export async function POST(request: Request) {
         try { publishedAt = new Date(dateMatch[1].trim()).toISOString(); } catch {}
       }
 
+      const epDesc = descMatch
+        ? descMatch[1].replace(/<[^>]+>/g, "").trim().slice(0, 500)
+        : null;
+
       episodes.push({
         podcast_id: podcast.id,
         title: titleMatch[1].trim().slice(0, 200),
+        description: epDesc,
         audio_url: urlMatch[1].trim(),
         duration_seconds: durationSeconds,
         published_at: publishedAt,
