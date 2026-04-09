@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Headphones, Plus, Pencil, Trash2, Save, X, List } from "lucide-react";
 import Link from "next/link";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { createClient } from "@/lib/supabase/client";
 import type { Podcast } from "@/types";
 
@@ -108,7 +109,7 @@ export default function AdminPodcastsPage() {
                 ))}
               </select>
             </div>
-            <Field label="URL couverture" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v || null })} />
+            <ImageUpload value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v || null })} folder="podcast" />
             <div className="md:col-span-2">
               <label className="block text-xs font-medium text-muted mb-1.5">Description</label>
               <textarea

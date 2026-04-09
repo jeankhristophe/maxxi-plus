@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Radio, Plus, Pencil, Trash2, Save, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import ImageUpload from "@/components/admin/ImageUpload";
 import type { RadioStation } from "@/types";
 
 const emptyStation: Partial<RadioStation> = {
@@ -109,7 +110,7 @@ export default function AdminRadiosPage() {
             <Field label="Tagline" value={editing.tagline || ""} onChange={(v) => setEditing({ ...editing, tagline: v })} />
             <Field label="URL flux MP3" value={editing.stream_url || ""} onChange={(v) => setEditing({ ...editing, stream_url: v })} />
             <Field label="URL flux HLS" value={editing.hls_url || ""} onChange={(v) => setEditing({ ...editing, hls_url: v || null })} />
-            <Field label="URL couverture" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v || null })} />
+            <ImageUpload value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v || null })} folder="radio" />
             <Field label="Couleur (hex)" value={editing.color || ""} onChange={(v) => setEditing({ ...editing, color: v })} />
             <Field label="Ordre" value={String(editing.sort_order || 0)} onChange={(v) => setEditing({ ...editing, sort_order: Number(v) })} />
           </div>
