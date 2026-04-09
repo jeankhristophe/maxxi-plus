@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Sparkles, Play, Pause, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { SkeletonList } from "@/components/Skeleton";
 import { formatDuration } from "@/types";
 import type { Episode, Podcast } from "@/types";
 
@@ -13,6 +14,7 @@ interface EpisodeWithPodcast extends Episode {
 
 export default function NewReleasesPage() {
   const [episodes, setEpisodes] = useState<EpisodeWithPodcast[]>([]);
+  const [loading, setLoading] = useState(true);
   const { playEpisode, currentEpisode, isPlaying, togglePlay } = usePlayer();
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function NewReleasesPage() {
       .gte("published_at", twoDaysAgo)
       .order("published_at", { ascending: false })
       .limit(50)
-      .then(({ data }) => setEpisodes((data as EpisodeWithPodcast[]) ?? []));
+      .then(({ data }) => { setEpisodes((data as EpisodeWithPodcast[]) ?? []); setLoading(false); });
   }, []);
 
   return (
@@ -40,7 +42,9 @@ export default function NewReleasesPage() {
         </div>
       </div>
 
-      {episodes.length > 0 ? (
+      {loading ? (
+        <SkeletonList count={8} />
+      ) : episodes.length > 0 ? (
         <div className="space-y-2">
           {episodes.map((ep) => {
             const isActive = currentEpisode?.id === ep.id;

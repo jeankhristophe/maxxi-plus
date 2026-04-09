@@ -6,12 +6,14 @@ import RadioCard from "@/components/RadioCard";
 import RadioGridCard from "@/components/RadioGridCard";
 import SearchBar from "@/components/SearchBar";
 import { createClient } from "@/lib/supabase/client";
+import { SkeletonGrid } from "@/components/Skeleton";
 import type { RadioStation } from "@/types";
 
 const radioTypes = ["Toutes", "FM", "Web"] as const;
 
 export default function RadioPage() {
   const [stations, setStations] = useState<RadioStation[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [type, setType] = useState<string>("Toutes");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -23,7 +25,7 @@ export default function RadioPage() {
       .select("*")
       .eq("is_active", true)
       .order("sort_order")
-      .then(({ data }) => setStations(data ?? []));
+      .then(({ data }) => { setStations(data ?? []); setLoading(false); });
   }, []);
 
   const filtered = useMemo(() => {
@@ -92,6 +94,10 @@ export default function RadioPage() {
         ))}
       </div>
 
+      {loading ? (
+        <SkeletonGrid count={8} />
+      ) : (
+      <>
       <p className="text-xs text-muted mb-4">
         {filtered.length} station{filtered.length !== 1 ? "s" : ""}
         {type !== "Toutes" && ` ${type}`}
@@ -114,12 +120,14 @@ export default function RadioPage() {
         </div>
       )}
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 && !loading && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Radio className="w-12 h-12 text-muted mb-4" />
           <p className="text-lg font-semibold mb-1">Aucune radio trouvée</p>
           <p className="text-sm text-muted">Essayez d&apos;ajuster votre recherche ou vos filtres</p>
         </div>
+      )}
+      </>
       )}
     </div>
   );

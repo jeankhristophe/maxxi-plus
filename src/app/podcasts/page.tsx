@@ -6,10 +6,12 @@ import PodcastCard from "@/components/PodcastCard";
 import CategoryPills from "@/components/CategoryPills";
 import SearchBar from "@/components/SearchBar";
 import { createClient } from "@/lib/supabase/client";
+import { SkeletonGrid } from "@/components/Skeleton";
 import type { Podcast } from "@/types";
 
 export default function PodcastsPage() {
   const [podcasts, setPodcasts] = useState<(Podcast & { latest_published_at: string | null; episode_count: number })[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Tous");
   const [viewMode, setViewMode] = useState<"dense" | "grid" | "list">("dense");
@@ -21,7 +23,7 @@ export default function PodcastsPage() {
       .from("podcasts_with_latest")
       .select("*")
       .order("latest_published_at", { ascending: false, nullsFirst: false })
-      .then(({ data }) => setPodcasts(data ?? []));
+      .then(({ data }) => { setPodcasts(data ?? []); setLoading(false); });
   }, []);
 
   const filtered = useMemo(() => {
@@ -120,6 +122,11 @@ export default function PodcastsPage() {
         {search && ` pour "${search}"`}
       </p>
 
+      {loading ? (
+        <SkeletonGrid count={15} />
+      ) : (
+      <>
+
       {/* Dense grid (PocketCasts style — covers only) */}
       {viewMode === "dense" && (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 gap-2">
@@ -164,12 +171,15 @@ export default function PodcastsPage() {
         </div>
       )}
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 && !loading && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Headphones className="w-12 h-12 text-muted mb-4" />
           <p className="text-lg font-semibold mb-1">Aucun podcast trouvé</p>
           <p className="text-sm text-muted">Essayez d&apos;ajuster votre recherche ou vos filtres</p>
         </div>
+      )}
+
+      </>
       )}
     </div>
   );
