@@ -16,19 +16,26 @@ import type { RadioStation, Episode, Podcast } from "@/types";
 
 type PlayerMode = "idle" | "radio" | "podcast";
 
+const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2] as const;
+type Speed = (typeof SPEEDS)[number];
+
+interface QueueItem {
+  episode: Episode;
+  podcast: Podcast;
+}
+
 interface PlayerState {
   mode: PlayerMode;
   isPlaying: boolean;
   volume: number;
   isMuted: boolean;
-  // Radio
+  speed: Speed;
   currentStation: RadioStation | null;
-  // Podcast
   currentEpisode: Episode | null;
   currentPodcast: Podcast | null;
-  // Progress (podcast only)
   currentTime: number;
   duration: number;
+  queue: QueueItem[];
 }
 
 interface PlayerActions {
@@ -39,9 +46,40 @@ interface PlayerActions {
   toggleMute: () => void;
   seek: (time: number) => void;
   stop: () => void;
+  cycleSpeed: () => void;
+  addToQueue: (episode: Episode, podcast: Podcast) => void;
+  removeFromQueue: (index: number) => void;
+  playNext: () => void;
 }
 
 type PlayerContextValue = PlayerState & PlayerActions;
+
+// ─── Progress persistence ───
+
+function saveProgress(episodeId: string, time: number, dur: number) {
+  try {
+    const data = JSON.parse(localStorage.getItem("maxxi_progress") || "{}");
+    data[episodeId] = { time, duration: dur, updatedAt: Date.now() };
+    localStorage.setItem("maxxi_progress", JSON.stringify(data));
+  } catch {}
+}
+
+export function getProgress(episodeId: string): { time: number; duration: number } | null {
+  try {
+    const data = JSON.parse(localStorage.getItem("maxxi_progress") || "{}");
+    return data[episodeId] || null;
+  } catch {
+    return null;
+  }
+}
+
+export function getAllProgress(): Record<string, { time: number; duration: number; updatedAt: number }> {
+  try {
+    return JSON.parse(localStorage.getItem("maxxi_progress") || "{}");
+  } catch {
+    return {};
+  }
+}
 
 // ─── Context ───
 
@@ -53,18 +91,18 @@ export function usePlayer() {
   return ctx;
 }
 
+export { SPEEDS };
+
 // ─── Provider ───
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
 
-  // Load a source into the audio element, handling HLS if needed
   function loadSource(url: string) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Destroy previous HLS instance
     if (hlsRef.current) {
       hlsRef.current.destroy();
       hlsRef.current = null;
@@ -78,7 +116,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       hls.attachMedia(audio);
       hlsRef.current = hls;
     } else {
-      // Native support (Safari for HLS, or regular MP3/stream)
       audio.src = url;
     }
   }
@@ -87,18 +124,27 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolumeState] = useState(75);
   const [isMuted, setIsMuted] = useState(false);
+  const [speed, setSpeed] = useState<Speed>(1);
   const [currentStation, setCurrentStation] = useState<RadioStation | null>(null);
   const [currentEpisode, setCurrentEpisode] = useState<Episode | null>(null);
   const [currentPodcast, setCurrentPodcast] = useState<Podcast | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
 
-  // Sync volume to audio element
+  // Sync volume
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume / 100;
     }
   }, [volume, isMuted]);
+
+  // Sync speed
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  }, [speed]);
 
   const playStation = useCallback((station: RadioStation) => {
     const audio = audioRef.current;
@@ -111,7 +157,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setCurrentTime(0);
     setDuration(0);
 
-    // Always use HLS when available (better CORS support)
     loadSource(station.hls_url || station.stream_url);
     audio.play().then(() => setIsPlaying(true)).catch(() => {});
   }, []);
@@ -128,8 +173,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setDuration(0);
 
     loadSource(episode.audio_url);
+
+    // Resume from saved progress
+    const saved = getProgress(episode.id);
+    if (saved && saved.time > 10) {
+      audio.currentTime = saved.time;
+      setCurrentTime(saved.time);
+    }
+
+    audio.playbackRate = speed;
     audio.play().then(() => setIsPlaying(true)).catch(() => {});
-  }, []);
+  }, [speed]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -159,6 +213,31 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setCurrentTime(time);
   }, [mode]);
 
+  const cycleSpeed = useCallback(() => {
+    setSpeed((prev) => {
+      const idx = SPEEDS.indexOf(prev);
+      return SPEEDS[(idx + 1) % SPEEDS.length];
+    });
+  }, []);
+
+  const addToQueue = useCallback((episode: Episode, podcast: Podcast) => {
+    setQueue((q) => [...q, { episode, podcast }]);
+  }, []);
+
+  const removeFromQueue = useCallback((index: number) => {
+    setQueue((q) => q.filter((_, i) => i !== index));
+  }, []);
+
+  const playNext = useCallback(() => {
+    if (queue.length === 0) {
+      stop();
+      return;
+    }
+    const next = queue[0];
+    setQueue((q) => q.slice(1));
+    playEpisode(next.episode, next.podcast);
+  }, [queue]);
+
   const stop = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -177,12 +256,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setDuration(0);
   }, []);
 
-  // Audio event handlers
+  // Save progress periodically
   const handleTimeUpdate = useCallback(() => {
     if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
+      const t = audioRef.current.currentTime;
+      setCurrentTime(t);
+
+      // Save progress every 5 seconds for podcast mode
+      if (currentEpisode && Math.floor(t) % 5 === 0) {
+        saveProgress(currentEpisode.id, t, audioRef.current.duration || 0);
+      }
     }
-  }, []);
+  }, [currentEpisode]);
 
   const handleLoadedMetadata = useCallback(() => {
     if (audioRef.current && isFinite(audioRef.current.duration)) {
@@ -192,10 +277,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const handleEnded = useCallback(() => {
     setIsPlaying(false);
-  }, []);
+    // Auto-play next in queue
+    if (queue.length > 0) {
+      const next = queue[0];
+      setQueue((q) => q.slice(1));
+      // Small delay before playing next
+      setTimeout(() => {
+        playEpisode(next.episode, next.podcast);
+      }, 500);
+    }
+  }, [queue]);
 
   const handleError = useCallback(() => {
-    // Stream errors are common for radio, don't crash
     setIsPlaying(false);
   }, []);
 
@@ -206,11 +299,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         isPlaying,
         volume,
         isMuted,
+        speed,
         currentStation,
         currentEpisode,
         currentPodcast,
         currentTime,
         duration,
+        queue,
         playStation,
         playEpisode,
         togglePlay,
@@ -218,10 +313,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         toggleMute,
         seek,
         stop,
+        cycleSpeed,
+        addToQueue,
+        removeFromQueue,
+        playNext,
       }}
     >
       {children}
-      {/* Hidden audio element */}
       <audio
         ref={audioRef}
         onTimeUpdate={handleTimeUpdate}
