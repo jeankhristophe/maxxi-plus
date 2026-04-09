@@ -39,7 +39,7 @@ export default async function HomePage() {
         </Link>
       </section>
 
-      {/* ─── Nos Radios (carrousel) ─── */}
+      {/* ─── Nos Radios ─── */}
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -50,16 +50,14 @@ export default async function HomePage() {
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {allStations.map((station) => (
-            <div key={station.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
-              <RadioGridCard station={station} />
-            </div>
+            <RadioGridCard key={station.id} station={station} />
           ))}
         </div>
       </section>
 
-      {/* ─── Tendances (carrousel) ─── */}
+      {/* ─── Tendances ─── */}
       {featured.length > 0 && (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
@@ -71,17 +69,15 @@ export default async function HomePage() {
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {featured.map((p) => (
-              <div key={p.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
-                <PodcastCard podcast={p} />
-              </div>
+              <PodcastCard key={p.id} podcast={p} />
             ))}
           </div>
         </section>
       )}
 
-      {/* ─── Nouveautés (carrousel) ─── */}
+      {/* ─── Nouveautés ─── */}
       {recent.length > 0 && (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
@@ -93,17 +89,15 @@ export default async function HomePage() {
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {recent.map((p) => (
-              <div key={p.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
-                <PodcastCard podcast={p} />
-              </div>
+              <PodcastCard key={p.id} podcast={p} />
             ))}
           </div>
         </section>
       )}
 
-      {/* ─── À découvrir (carrousel) ─── */}
+      {/* ─── À découvrir ─── */}
       {rest.length > 0 && (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
@@ -115,11 +109,9 @@ export default async function HomePage() {
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {rest.map((p) => (
-              <div key={p.id} className="shrink-0 w-[42vw] sm:w-[200px] md:w-[200px]">
-                <PodcastCard podcast={p} />
-              </div>
+              <PodcastCard key={p.id} podcast={p} />
             ))}
           </div>
         </section>
