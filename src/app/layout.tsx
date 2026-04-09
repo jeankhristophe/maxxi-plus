@@ -51,7 +51,9 @@ export default function RootLayout({
         <PlayerProvider>
           <Sidebar />
           <main className="md:ml-[var(--sidebar-width)] pb-[calc(var(--player-height)+var(--nav-height))] md:pb-[var(--player-height)] min-h-screen">
-            {children}
+            <div className="max-w-[1400px] mx-auto">
+              {children}
+            </div>
           </main>
           <Player />
         </PlayerProvider>
