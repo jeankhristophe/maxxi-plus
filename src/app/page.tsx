@@ -28,14 +28,8 @@ export default async function HomePage() {
 
   return (
     <div className="p-4 md:p-8">
-      {/* ─── Mini Hero ─── */}
-      <section className="mb-8 animate-fade-in">
-        <div className="flex items-center gap-3 mb-3">
-          <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight">
-            MAXXI<span className="text-gradient-amber">+</span>
-          </h2>
-          <span className="text-xs text-muted hidden sm:block">Radio & Podcasts francophones</span>
-        </div>
+      {/* ─── Search bar ─── */}
+      <section className="mb-6 animate-fade-in">
         <Link
           href="/search"
           className="flex items-center gap-3 w-full max-w-md h-11 px-4 rounded-xl bg-surface border border-border text-sm text-muted hover:border-amber/30 transition-all"
