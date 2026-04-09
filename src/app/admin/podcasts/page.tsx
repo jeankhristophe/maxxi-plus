@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Headphones, Plus, Pencil, Trash2, Save, X, List } from "lucide-react";
+import { Headphones, Plus, Pencil, Trash2, Save, X, List, Download, Loader2 } from "lucide-react";
 import Link from "next/link";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { createClient } from "@/lib/supabase/client";
@@ -62,6 +62,36 @@ export default function AdminPodcastsPage() {
     loadData();
   }
 
+  // Quick import
+  const [importQuery, setImportQuery] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
+
+  async function handleImport() {
+    if (!importQuery.trim()) return;
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const res = await fetch("/api/admin/import-podcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ searchTerm: importQuery }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setImportResult(`"${data.podcast.title}" importé avec ${data.episodeCount} épisodes`);
+        setImportQuery("");
+        loadData();
+      } else {
+        setImportResult(data.error || "Erreur");
+      }
+    } catch {
+      setImportResult("Erreur de connexion");
+    }
+    setImporting(false);
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("Supprimer ce podcast et tous ses épisodes ?")) return;
     await supabase.from("podcasts").delete().eq("id", id);
@@ -78,14 +108,54 @@ export default function AdminPodcastsPage() {
           </h1>
           <p className="text-sm text-muted">{podcasts.length} podcasts</p>
         </div>
-        <button
-          onClick={handleNew}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber text-white text-sm font-medium hover:bg-amber-hover transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Ajouter
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowImport(!showImport)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-elevated border border-border text-sm font-medium text-text-secondary hover:text-text hover:border-amber/30 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Import rapide
+          </button>
+          <button
+            onClick={handleNew}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber text-white text-sm font-medium hover:bg-amber-hover transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter
+          </button>
+        </div>
       </div>
+
+      {/* Quick import */}
+      {showImport && (
+        <div className="rounded-xl bg-surface border border-border p-5 mb-6">
+          <h2 className="font-display text-lg font-bold mb-2">Import rapide</h2>
+          <p className="text-sm text-muted mb-4">Tapez le nom du podcast — il sera recherché sur Apple Podcasts et tous ses épisodes seront importés automatiquement.</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={importQuery}
+              onChange={(e) => setImportQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleImport()}
+              placeholder="Ex: Les Grosses Têtes, Hondelatte Raconte..."
+              className="flex-1 h-11 px-4 rounded-xl bg-elevated border border-border text-sm text-text focus:outline-none focus:border-amber/50 transition-all"
+            />
+            <button
+              onClick={handleImport}
+              disabled={importing || !importQuery.trim()}
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-amber text-white text-sm font-medium hover:bg-amber-hover transition-colors disabled:opacity-50"
+            >
+              {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {importing ? "Import..." : "Importer"}
+            </button>
+          </div>
+          {importResult && (
+            <p className={`text-sm mt-3 ${importResult.includes("importé") ? "text-success" : "text-live"}`}>
+              {importResult}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Form */}
       {editing && (
