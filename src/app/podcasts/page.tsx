@@ -53,58 +53,37 @@ export default function PodcastsPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="flex items-center justify-between mb-6 animate-fade-in">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber/15 flex items-center justify-center">
-            <Headphones className="w-5 h-5 text-amber" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold">Podcasts</h1>
-            <p className="text-sm text-muted">Annuaire francophone — {podcasts.length} podcasts</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Sort */}
+      {/* Header */}
+      <div className="mb-4 animate-fade-in">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="font-display text-xl md:text-2xl font-bold">Podcasts</h1>
           <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
-            <ArrowDownUp className="w-3.5 h-3.5 text-muted ml-1.5" />
-            {([
-              ["recent", "Récents"],
-              ["name", "A-Z"],
-              ["episodes", "Épisodes"],
-            ] as const).map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => setSortBy(key)}
-                className={`px-2 py-1.5 rounded-md text-[11px] font-medium transition-colors ${sortBy === key ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {/* View mode */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
-            <button
-              onClick={() => setViewMode("dense")}
-              className={`p-2 rounded-md transition-colors ${viewMode === "dense" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-              title="Grille dense"
-            >
+            <button onClick={() => setViewMode("dense")} className={`p-1.5 rounded-md transition-colors ${viewMode === "dense" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}>
               <Grid3X3 className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-              title="Grille"
-            >
+            <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}>
               <LayoutGrid className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-              title="Liste"
-            >
+            <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}>
               <List className="w-4 h-4" />
             </button>
           </div>
+        </div>
+        {/* Sort pills */}
+        <div className="flex items-center gap-2">
+          {([
+            ["recent", "Récents"],
+            ["name", "A-Z"],
+            ["episodes", "Épisodes"],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setSortBy(key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${sortBy === key ? "bg-amber text-white" : "bg-elevated text-text-secondary hover:text-text"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 

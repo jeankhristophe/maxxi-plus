@@ -44,32 +44,20 @@ export default function RadioPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="flex items-center justify-between mb-6 animate-fade-in">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber/15 flex items-center justify-center">
-            <Radio className="w-5 h-5 text-amber" />
+      <div className="mb-4 animate-fade-in">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-xl md:text-2xl font-bold">Radios</h1>
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-live/15 text-live text-[10px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-live animate-pulse-live" />
+              LIVE
+            </span>
           </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold">Radios Live</h1>
-            <p className="text-sm text-muted">{stations.length} stations</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-live/15 text-live text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-live animate-pulse-live" />
-            En direct
-          </span>
           <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-            >
+            <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}>
               <LayoutGrid className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
-            >
+            <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}>
               <List className="w-4 h-4" />
             </button>
           </div>
