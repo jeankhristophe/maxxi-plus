@@ -14,17 +14,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "searchTerm required" }, { status: 400 });
   }
 
-  // 1. Search Apple for the podcast
-  const appleRes = await fetch(
-    `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=podcast&country=fr&limit=1`,
-  );
-  const appleData = await appleRes.json();
+  // 1. Detect Apple Podcasts URL or search by name
+  let apple;
+  const appleUrlMatch = searchTerm.match(/\/id(\d+)/);
 
-  if (appleData.resultCount === 0) {
-    return NextResponse.json({ error: "Podcast not found on Apple" }, { status: 404 });
+  if (appleUrlMatch) {
+    // Lookup by Apple ID
+    const lookupRes = await fetch(
+      `https://itunes.apple.com/lookup?id=${appleUrlMatch[1]}&country=fr`,
+    );
+    const lookupData = await lookupRes.json();
+    if (lookupData.resultCount === 0) {
+      return NextResponse.json({ error: "Podcast not found on Apple" }, { status: 404 });
+    }
+    apple = lookupData.results[0];
+  } else {
+    // Search by name
+    const appleRes = await fetch(
+      `https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&media=podcast&country=fr&limit=1`,
+    );
+    const appleData = await appleRes.json();
+    if (appleData.resultCount === 0) {
+      return NextResponse.json({ error: "Podcast not found on Apple" }, { status: 404 });
+    }
+    apple = appleData.results[0];
   }
-
-  const apple = appleData.results[0];
   const feedUrl = apple.feedUrl;
   const artwork = apple.artworkUrl600?.replace("600x600bb", "1400x1400bb") || "";
   const title = apple.collectionName;

@@ -134,14 +134,14 @@ export default function AdminPodcastsPage() {
       {showImport && (
         <div className="rounded-xl bg-surface border border-border p-5 mb-6">
           <h2 className="font-display text-lg font-bold mb-2">Import rapide</h2>
-          <p className="text-sm text-muted mb-4">Tapez le nom du podcast — il sera recherché sur Apple Podcasts et tous ses épisodes seront importés automatiquement.</p>
+          <p className="text-sm text-muted mb-4">Tapez le nom du podcast ou collez une URL Apple Podcasts — tous les épisodes seront importés automatiquement.</p>
           <div className="flex gap-2">
             <input
               type="text"
               value={importQuery}
               onChange={(e) => setImportQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleImport()}
-              placeholder="Ex: Les Grosses Têtes, Hondelatte Raconte..."
+              placeholder="Nom ou URL Apple (ex: https://podcasts.apple.com/fr/podcast/...)"
               className="flex-1 h-11 px-4 rounded-xl bg-elevated border border-border text-sm text-text focus:outline-none focus:border-amber/50 transition-all"
             />
             <button
