@@ -6,6 +6,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import LoadMoreEpisodes from "@/components/LoadMoreEpisodes";
 import EpisodeRow from "@/components/EpisodeRow";
 import PlayLatestButton from "@/components/PlayLatestButton";
 import { formatDuration } from "@/types";
@@ -23,15 +24,23 @@ export default async function PodcastDetailPage({
     supabase.from("podcasts").select("*").eq("id", id).single(),
     supabase
       .from("episodes")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("podcast_id", id)
       .eq("is_published", true)
-      .order("published_at", { ascending: false }),
+      .order("published_at", { ascending: false })
+      .range(0, 49),
   ]);
 
   if (!podcast) notFound();
 
   const podcastEpisodes = episodes ?? [];
+  // Get total count from the response headers
+  const episodeResult = await supabase
+    .from("episodes")
+    .select("*", { count: "exact", head: true })
+    .eq("podcast_id", id)
+    .eq("is_published", true);
+  const totalEpisodes = episodeResult.count ?? podcastEpisodes.length;
 
   return (
     <div className="p-4 md:p-8">
@@ -97,17 +106,21 @@ export default async function PodcastDetailPage({
         <h2 className="font-display text-xl font-bold mb-4">
           Épisodes
           <span className="text-muted font-normal text-base ml-2">
-            ({podcastEpisodes.length})
+            ({totalEpisodes})
           </span>
         </h2>
 
         {podcastEpisodes.length > 0 ? (
           <div className="space-y-2">
-            {podcastEpisodes.map((ep, i) => (
-              <div key={ep.id} className={`animate-slide-up opacity-0 stagger-${Math.min(i + 1, 8)}`}>
-                <EpisodeRow episode={ep} podcast={podcast} />
-              </div>
+            {podcastEpisodes.map((ep) => (
+              <EpisodeRow key={ep.id} episode={ep} podcast={podcast} />
             ))}
+            <LoadMoreEpisodes
+              podcastId={id}
+              podcast={podcast}
+              totalCount={totalEpisodes}
+              initialLoaded={podcastEpisodes.length}
+            />
           </div>
         ) : (
           <div className="text-center py-12">
