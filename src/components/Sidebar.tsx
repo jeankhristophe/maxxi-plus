@@ -11,6 +11,8 @@ import {
   Clock,
   Settings,
   Wifi,
+  Sparkles,
+  PlayCircle,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -18,10 +20,12 @@ const navItems = [
   { href: "/", icon: Home, label: "Accueil" },
   { href: "/radio", icon: Radio, label: "Radio" },
   { href: "/podcasts", icon: Headphones, label: "Podcasts" },
-  { href: "/search", icon: Search, label: "Rechercher" },
+  { href: "/search", icon: Search, label: "Découvrir" },
 ];
 
 const libraryItems = [
+  { href: "/new-releases", icon: Sparkles, label: "Nouveautés" },
+  { href: "/in-progress", icon: PlayCircle, label: "En cours" },
   { href: "/favorites", icon: Heart, label: "Favoris" },
   { href: "/history", icon: Clock, label: "Historique" },
 ];
@@ -29,14 +33,12 @@ const libraryItems = [
 export default function Sidebar() {
   const pathname = usePathname();
 
-  // Hide navigation on admin pages
   if (pathname.startsWith("/admin")) return null;
 
   return (
     <>
       {/* ─── Desktop Sidebar ─── */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-[var(--player-height)] w-[var(--sidebar-width)] bg-surface border-r border-border flex-col z-30">
-        {/* Logo */}
         <div className="px-6 py-6 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber flex items-center justify-center">
             <Wifi className="w-5 h-5 text-white" />
@@ -101,10 +103,7 @@ export default function Sidebar() {
 
         <div className="px-3 pb-4 space-y-0.5">
           <ThemeToggle />
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted hover:text-text hover:bg-elevated transition-all duration-200"
-          >
+          <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted hover:text-text hover:bg-elevated transition-all duration-200">
             <Settings className="w-[18px] h-[18px]" />
             Paramètres
           </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Headphones, LayoutGrid, List, ArrowDownUp } from "lucide-react";
+import { Headphones, LayoutGrid, Grid3X3, List, ArrowDownUp } from "lucide-react";
 import PodcastCard from "@/components/PodcastCard";
 import CategoryPills from "@/components/CategoryPills";
 import SearchBar from "@/components/SearchBar";
@@ -12,7 +12,7 @@ export default function PodcastsPage() {
   const [podcasts, setPodcasts] = useState<(Podcast & { latest_published_at: string | null; episode_count: number })[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Tous");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"dense" | "grid" | "list">("dense");
   const [sortBy, setSortBy] = useState<"recent" | "name" | "episodes">("recent");
 
   useEffect(() => {
@@ -82,14 +82,23 @@ export default function PodcastsPage() {
           {/* View mode */}
           <div className="flex items-center gap-1 p-1 rounded-lg bg-elevated">
             <button
+              onClick={() => setViewMode("dense")}
+              className={`p-2 rounded-md transition-colors ${viewMode === "dense" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
+              title="Grille dense"
+            >
+              <Grid3X3 className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded-md transition-colors ${viewMode === "grid" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
+              title="Grille"
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
               className={`p-2 rounded-md transition-colors ${viewMode === "list" ? "bg-amber/15 text-amber" : "text-muted hover:text-text"}`}
+              title="Liste"
             >
               <List className="w-4 h-4" />
             </button>
@@ -111,21 +120,38 @@ export default function PodcastsPage() {
         {search && ` pour "${search}"`}
       </p>
 
-      {viewMode === "grid" ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {filtered.map((p, i) => (
-            <div key={p.id} className={`animate-slide-up opacity-0 stagger-${Math.min(i + 1, 8)}`}>
-              <PodcastCard podcast={p} />
-            </div>
+      {/* Dense grid (PocketCasts style — covers only) */}
+      {viewMode === "dense" && (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 gap-2">
+          {filtered.map((p) => (
+            <a key={p.id} href={`/podcast/${p.id}`} className="group" title={`${p.title} — ${p.author}`}>
+              <img
+                src={p.cover_url || "/placeholder.png"}
+                alt={p.title}
+                className="w-full aspect-square rounded-lg object-cover transition-transform duration-300 group-hover:scale-105 group-hover:shadow-lg"
+              />
+            </a>
           ))}
         </div>
-      ) : (
+      )}
+
+      {/* Normal grid (covers + text) */}
+      {viewMode === "grid" && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {filtered.map((p) => (
+            <PodcastCard key={p.id} podcast={p} />
+          ))}
+        </div>
+      )}
+
+      {/* List view */}
+      {viewMode === "list" && (
         <div className="space-y-2">
-          {filtered.map((p, i) => (
+          {filtered.map((p) => (
             <a
               key={p.id}
               href={`/podcast/${p.id}`}
-              className={`flex items-center gap-4 p-3 rounded-xl hover:bg-elevated transition-colors group animate-slide-up opacity-0 stagger-${Math.min(i + 1, 8)}`}
+              className="flex items-center gap-4 p-3 rounded-xl hover:bg-elevated transition-colors group"
             >
               <img src={p.cover_url || "/placeholder.png"} alt={p.title} className="w-14 h-14 rounded-lg object-cover" />
               <div className="flex-1 min-w-0">
