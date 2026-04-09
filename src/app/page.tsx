@@ -5,7 +5,7 @@ import {
   Sparkles,
   ArrowRight,
   Headphones,
-  Mic2,
+  Search,
 } from "lucide-react";
 import PodcastCard from "@/components/PodcastCard";
 import RadioGridCard from "@/components/RadioGridCard";
@@ -28,57 +28,21 @@ export default async function HomePage() {
 
   return (
     <div className="p-4 md:p-8">
-      {/* ─── Hero Branding ─── */}
-      <section className="relative rounded-2xl overflow-hidden mb-10 animate-fade-in bg-surface border border-border">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber/10 via-transparent to-transparent" />
-
-        <div className="relative px-8 py-10 md:px-10 md:py-12">
-          <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight mb-2 md:mb-3">
+      {/* ─── Mini Hero ─── */}
+      <section className="mb-8 animate-fade-in">
+        <div className="flex items-center gap-3 mb-3">
+          <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight">
             MAXXI<span className="text-gradient-amber">+</span>
           </h2>
-          <p className="text-sm md:text-lg text-text-secondary max-w-lg mb-4 md:mb-6">
-            Vos radios en direct et les meilleurs podcasts francophones, réunis en un seul endroit.
-          </p>
-
-          <div className="flex items-center gap-6 mb-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-live/15 flex items-center justify-center">
-                <Radio className="w-4 h-4 text-live" />
-              </div>
-              <div>
-                <p className="text-xl font-bold leading-none">{allStations.length}</p>
-                <p className="text-[11px] text-muted">radios live</p>
-              </div>
-            </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber/15 flex items-center justify-center">
-                <Mic2 className="w-4 h-4 text-amber" />
-              </div>
-              <div>
-                <p className="text-xl font-bold leading-none">{allPodcasts.length}</p>
-                <p className="text-[11px] text-muted">podcasts</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/radio"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber text-white font-semibold text-sm hover:bg-amber-hover transition-colors"
-            >
-              <Radio className="w-4 h-4" />
-              Écouter les radios
-            </Link>
-            <Link
-              href="/podcasts"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-elevated border border-border text-text-secondary font-medium text-sm hover:text-text hover:border-amber/30 transition-all"
-            >
-              <Headphones className="w-4 h-4" />
-              Découvrir les podcasts
-            </Link>
-          </div>
+          <span className="text-xs text-muted hidden sm:block">Radio & Podcasts francophones</span>
         </div>
+        <Link
+          href="/search"
+          className="flex items-center gap-3 w-full max-w-md h-11 px-4 rounded-xl bg-surface border border-border text-sm text-muted hover:border-amber/30 transition-all"
+        >
+          <Search className="w-4 h-4" />
+          Rechercher radios, podcasts...
+        </Link>
       </section>
 
       {/* ─── Nos Radios (carrousel) ─── */}
