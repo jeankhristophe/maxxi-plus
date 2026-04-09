@@ -21,10 +21,10 @@ export default async function HomePage() {
 
   const allStations = stations ?? [];
   const allPodcasts = podcasts ?? [];
-  const featured = allPodcasts.filter((p) => p.is_featured).slice(0, 4);
+  const featured = allPodcasts.filter((p) => p.is_featured).slice(0, 10);
   const nonFeatured = allPodcasts.filter((p) => !p.is_featured);
-  const recent = nonFeatured.slice(0, 4);
-  const rest = nonFeatured.slice(4, 8);
+  const recent = nonFeatured.slice(0, 10);
+  const rest = nonFeatured.slice(10, 20);
 
   return (
     <div className="p-4 md:p-8">
