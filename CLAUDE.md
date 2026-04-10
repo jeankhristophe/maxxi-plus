@@ -2,15 +2,21 @@
 
 ## Projet
 
-Application web combinant :
-1. **Radio privée** (MAXXI FM) — player live, programme, titres en cours
-2. **Annuaire podcasts francophones** — directory public avec recherche, catégories, fiches détail
+Application web grand public combinant :
+1. **Radio live** (4 stations antillaises : Chérie FM GP/MQ, Maxxi GP/MQ) — streaming HLS/MP3
+2. **Annuaire podcasts francophones** (86+ podcasts, 30k+ épisodes) — directory public
+
+**URL** : https://maxxi-plus.vercel.app
+**Admin** : /admin/login
 
 ## Stack technique
 
 - **Framework** : Next.js 16 (App Router)
 - **Langage** : TypeScript strict
 - **Styles** : Tailwind CSS v4 (config en CSS via `@theme inline`, pas de `tailwind.config.ts`)
+- **Backend** : Supabase (Postgres + Auth + Storage)
+- **Streaming** : hls.js pour les flux HLS, HTML5 Audio pour MP3
+- **Déploiement** : Vercel (deploy via `npx vercel --prod`)
 - **Icônes** : lucide-react
 - **Fonts** : Bricolage Grotesque (display) + Figtree (body) via next/font/google
 
@@ -18,54 +24,77 @@ Application web combinant :
 
 ```
 src/
-├── app/                    # Routes (App Router)
-│   ├── layout.tsx          # Layout racine (sidebar + player persistant)
-│   ├── page.tsx            # Accueil (hero radio + grilles podcasts)
-│   ├── radio/page.tsx      # Player radio complet + programme
-│   ├── podcasts/page.tsx   # Annuaire avec search + filtres
-│   └── podcast/[id]/       # Détail podcast + épisodes
-├── components/             # Composants réutilisables
-│   ├── Sidebar.tsx         # Navigation latérale (Spotify-like)
-│   ├── Player.tsx          # Player persistant bottom bar
-│   ├── PodcastCard.tsx     # Card podcast pour les grilles
-│   ├── CategoryPills.tsx   # Filtres par catégorie
-│   ├── SearchBar.tsx       # Barre de recherche
-│   └── WaveformVisualizer.tsx  # Visualiseur audio animé
-└── data/
-    └── mock.ts             # Données mock + types + helpers
+├── app/
+│   ├── layout.tsx              # Layout racine (sidebar + GlobalSearch + player)
+│   ├── page.tsx                # Accueil (radios + tendances Apple + podcasts)
+│   ├── radio/page.tsx          # Grille radios avec filtres FM/Web
+│   ├── podcasts/page.tsx       # Annuaire : vue dense/grid/list, tri, catégories
+│   ├── podcast/[id]/page.tsx   # Détail podcast + épisodes paginés
+│   ├── new-releases/page.tsx   # Épisodes des 48 dernières heures
+│   ├── in-progress/page.tsx    # Épisodes en cours (progression localStorage)
+│   ├── search/page.tsx         # Recherche globale radios + podcasts
+│   ├── favorites/page.tsx      # Favoris (placeholder)
+│   ├── history/page.tsx        # Historique (placeholder)
+│   ├── settings/page.tsx       # Paramètres + toggle thème
+│   ├── admin/                  # Panel admin (login, CRUD radios/podcasts/épisodes)
+│   └── api/
+│       ├── cron/sync-episodes/ # Cron quotidien : sync RSS → nouveaux épisodes
+│       └── admin/              # API routes admin (import, delete) avec service role
+├── components/
+│   ├── Sidebar.tsx             # Desktop sidebar + mobile bottom nav
+│   ├── Player.tsx              # Player PocketCasts (vitesse, skip, queue, bookmark)
+│   ├── GlobalSearch.tsx        # Barre de recherche sur toutes les pages
+│   ├── PodcastCard.tsx         # Card podcast (cover + titre + auteur + épisodes)
+│   ├── RadioCard.tsx           # Card radio liste
+│   ├── RadioGridCard.tsx       # Card radio grille
+│   ├── EpisodeRow.tsx          # Ligne épisode avec play/pause
+│   ├── PlayLatestButton.tsx    # Bouton "Dernier épisode" (client component)
+│   ├── LoadMoreEpisodes.tsx    # Pagination "Charger plus" pour les épisodes
+│   ├── CategoryPills.tsx       # Filtres catégories (depuis Supabase)
+│   ├── SearchBar.tsx           # Input de recherche
+│   ├── Skeleton.tsx            # Skeleton loaders (grid, list, pills)
+│   ├── ThemeToggle.tsx         # Toggle dark/light (desktop + mobile compact)
+│   └── admin/ImageUpload.tsx   # Upload images vers Supabase Storage
+├── contexts/
+│   └── PlayerContext.tsx       # État player partagé (radio/podcast, queue, vitesse, persistence)
+├── lib/supabase/
+│   ├── server.ts               # Client Supabase pour Server Components
+│   └── client.ts               # Client Supabase pour Client Components
+├── types/
+│   └── index.ts                # Types (RadioStation, Podcast, Episode) + helpers
+└── middleware.ts                # Refresh session Supabase
 ```
 
 ## Design System
 
-- **Thème** : Luxury Audio Noir — fond sombre, accents cuivre/ambre
-- **Palette** : `--color-noir` (#0A0A0B), `--color-amber` (#E8A849), surfaces étagées
-- **Animations** : slide-up staggeré, equalizer bars, waveform, glow pulse
-- **Effets** : glass morphism, noise texture overlay, gradient backgrounds
+- **Thème** : Dark/Light avec toggle, accent violet (#8B5CF6)
+- **Variables CSS dynamiques** : `:root` (dark) + `html:not(.dark)` (light), mappées via `@theme inline`
+- **Animations** : slide-up, equalizer bars, skeleton pulse
+- **Effets** : glass morphism, noise texture overlay
 
 ## Conventions
 
-- Composants client marqués `"use client"` uniquement quand nécessaire (useState, événements)
-- Les pages Server Components par défaut (sauf `/podcasts` qui filtre côté client)
-- Routes dynamiques avec `params: Promise<>` (Next.js 16 convention)
-- CSS custom properties dans `globals.css` via `@theme inline` de Tailwind v4
-- Pas de `tailwind.config.ts` — tout est dans le CSS
+- Composants client marqués `"use client"` uniquement quand nécessaire
+- Pages Server Components par défaut (accueil, détail podcast)
+- Pages Client Components pour les filtres interactifs (podcasts, radio)
+- Routes dynamiques avec `params: Promise<>` (Next.js 16)
+- Opérations admin via API routes avec `SUPABASE_SERVICE_ROLE_KEY` (bypass RLS)
+- Cron quotidien à 6h UTC pour sync épisodes RSS
 
 ## Commandes
 
 ```bash
-npm run dev     # Serveur de développement
-npm run build   # Build production
-npm run lint    # ESLint
+npm run dev              # Dev server
+npm run build            # Build production
+npx vercel --prod        # Deploy sur Vercel
 ```
 
-## Prochaines étapes
+## Supabase
 
-- [ ] Intégration API streaming audio réelle (Icecast/Shoutcast)
-- [ ] Backend Supabase pour les podcasts (CRUD, auth)
-- [ ] Système de favoris persistant
-- [ ] Player audio fonctionnel avec Web Audio API
-- [ ] Responsive mobile (sidebar en drawer)
-- [ ] PWA (manifest + service worker)
-- [ ] Pages search et settings
+- **Tables** : radio_stations, podcasts, episodes, categories, favorites
+- **Vue** : podcasts_with_latest (JOIN episodes pour tri par dernière publication)
+- **RLS** : lecture publique, écriture admin (policy basée sur email)
+- **Storage** : bucket 'covers' (public, upload authentifié)
+- **Cron** : /api/cron/sync-episodes (protégé par CRON_SECRET)
 
 @AGENTS.md
